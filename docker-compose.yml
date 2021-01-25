@@ -6,8 +6,8 @@ networks:
 services:
   php:
     build:
-      context: ./docker/php
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/php/Dockerfile
     restart: always
     volumes:
       - ./:/var/www/
@@ -46,7 +46,7 @@ services:
     image: adminer:4
     restart: always
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
       - php
       - postgres

@@ -18,4 +18,4 @@ RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
 COPY composer.json composer.lock ./
 RUN composer update
 
-RUN bash -c "wait.sh postgres:5432 -- symfony console doctrine:database:create --if-not-exists && wait.sh postgres:5432 -- symfony console doctrine:migrations:migrate --no-interaction --allow-no-migration"
+COPY docker/wait.sh /usr/local/bin/wait.sh

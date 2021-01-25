@@ -1,0 +1,54 @@
+version: '3.8'
+
+networks:
+  dev:
+
+services:
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./:/var/www/
+      - ./docker/wait.sh:/usr/local/bin/wait.sh
+    ports:
+      - "9000:9000"
+    networks:
+      - dev
+
+  postgres:
+    image: postgres:13.1-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres:/var/lib/postgresql/data
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: password
+    networks:
+      - dev
+
+  nginx:
+    image: nginx:1.19.6-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/log:/var/log/nginx/
+    depends_on:
+      - php
+    networks:
+      - dev
+
+  adminer:
+    image: adminer:4
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - php
+      - postgres
+    networks:
+      - dev

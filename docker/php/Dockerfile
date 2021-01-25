@@ -19,3 +19,6 @@ COPY composer.json composer.lock ./
 RUN composer update
 
 COPY docker/wait.sh /usr/local/bin/wait.sh
+
+CMD bash -c "wait.sh postgres:5432 -- symfony console doctrine:database:create --if-not-exists && wait.sh postgres:5432 -- symfony console doctrine:migrations:migrate --no-interaction --allow-no-migration" \
+    && php-fpm

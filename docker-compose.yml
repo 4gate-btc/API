@@ -17,7 +17,6 @@ services:
       - "9000:9000"
     networks:
       - dev
-    command: bash -c "wait.sh postgres:5432 -- symfony console doctrine:database:create --if-not-exists && wait.sh postgres:5432 -- symfony console doctrine:migrations:migrate --no-interaction --allow-no-migration"
 
   postgres:
     image: postgres:13.1-alpine
@@ -54,3 +53,5 @@ services:
       - postgres
     networks:
       - dev
+
+

@@ -4,6 +4,8 @@ RUN apk add --no-cache bash
 
 RUN set -ex \
   && apk --no-cache add \
+  && pecl install xdebug \
+  && docker-php-ext-enable xdebug \
     postgresql-dev
 
 RUN docker-php-ext-install pdo pdo_pgsql

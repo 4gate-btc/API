@@ -47,7 +47,7 @@ services:
     image: adminer:4
     restart: always
     ports:
-      - "8000:8000"
+      - "8000:8080"
     depends_on:
       - php
       - postgres

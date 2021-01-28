@@ -11,6 +11,8 @@ services:
     restart: always
     volumes:
       - ./:/var/www/
+      - /var/www/vendor
+      - /var/www/var
     depends_on:
       - postgres
     ports:

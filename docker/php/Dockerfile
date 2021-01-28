@@ -4,9 +4,16 @@ RUN apk add --no-cache bash
 
 RUN set -ex \
   && apk --no-cache add \
-  && pecl install xdebug \
-  && docker-php-ext-enable xdebug \
-    postgresql-dev
+    postgresql-dev \
+    rabbitmq-c-dev
+
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && docker-php-ext-install sockets \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/install-php-extensions
+RUN install-php-extensions amqp
 
 RUN docker-php-ext-install pdo pdo_pgsql
 
@@ -18,9 +25,10 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash
 RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
 
 COPY composer.json composer.lock ./
-RUN composer update
+RUN composer install
 
 COPY docker/wait.sh /usr/local/bin/wait.sh
 
-CMD bash -c "wait.sh postgres:5432 -- symfony console doctrine:database:create --if-not-exists && wait.sh postgres:5432 -- symfony console doctrine:migrations:migrate --no-interaction --allow-no-migration" \
+
+CMD bash -c "./docker/init.sh" \
     && php-fpm

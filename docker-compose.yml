@@ -1,10 +1,12 @@
 version: '3.8'
 
 networks:
-  dev:
+  rabbitmq_main:
+    external: true
 
 services:
-  php:
+  api_php:
+    container_name: api_php
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
@@ -14,13 +16,14 @@ services:
       - /var/www/vendor
       - /var/www/var
     depends_on:
-      - postgres
+      - api_postgres
     ports:
       - "9000:9000"
     networks:
-      - dev
+      - rabbitmq_main
 
-  postgres:
+  api_postgres:
+    container_name: api_postgres
     image: postgres:13.1-alpine
     ports:
       - "5432:5432"
@@ -30,9 +33,10 @@ services:
     environment:
       POSTGRES_PASSWORD: password
     networks:
-      - dev
+      - rabbitmq_main
 
   nginx:
+    container_name: nginx
     image: nginx:1.19.6-alpine
     ports:
       - "80:80"
@@ -41,19 +45,27 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./docker/nginx/log:/var/log/nginx/
     depends_on:
-      - php
+      - api_php
     networks:
-      - dev
+      - rabbitmq_main
 
-  adminer:
+  api_adminer:
+    container_name: api_adminer
     image: adminer:4
     restart: always
     ports:
       - "8000:8080"
     depends_on:
-      - php
-      - postgres
+      - api_php
+      - api_postgres
     networks:
-      - dev
+      - rabbitmq_main
+
+  redis:
+    container_name: redis
+    image: redis:6.0-alpine
+    restart: always
+    networks:
+      - rabbitmq_main
 
 

@@ -12,6 +12,9 @@ RUN apk add --no-cache $PHPIZE_DEPS \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/install-php-extensions
 RUN install-php-extensions amqp
 

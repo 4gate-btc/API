@@ -1,14 +1,49 @@
 framework:
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
+        default_bus: command.bus
+
+        failure_transport: failed
+
+        buses:
+            command.bus: ~
+
+            event.bus:
+                default_middleware: allow_no_handlers
+
+            query.bus: ~
 
         transports:
-            # https://symfony.com/doc/current/messenger.html#transport-configuration
-            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
+            authentication:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Messenger\Serializer\AuthenticationMessageSerializer
+                options:
+                    # Messenger will create then send to this exchange
+                    exchange:
+                        name: authentication
+                        type: direct
+                        default_publish_routing_key: authentication
+                    # Messenger will create this queue & add binding keys
+                    # The worker will know to consume from this queue
+                    queues:
+                        authentication:
+                            binding_keys: [ authentication ]
+            api:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Messenger\Serializer\APIMessageSerializer
+                options:
+                    # Messenger will create then send to this exchange
+                    exchange:
+                        name: api
+                        type: direct
+                        default_publish_routing_key: api
+                    # Messenger will create this queue & add binding keys
+                    # The worker will know to consume from this queue
+                    queues:
+                        api:
+                            binding_keys: [ api ]
+
+            failed: 'doctrine://default?queue_name=failed'
 
         routing:
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            'App\Messenger\MessageResponse': api
+            'App\Messenger\MessageRequest': authentication
